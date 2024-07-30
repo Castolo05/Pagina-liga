@@ -70,12 +70,13 @@ input[type="number"], input[type="text"] {
 
 .listas-wrapper {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     margin-bottom: 20px;
 }
 
 .lista {
     width: 45%;
+    margin: 0 10px;
 }
 
 #listaEquipos, #listaJugadores {
@@ -85,6 +86,7 @@ input[type="number"], input[type="text"] {
 
 #listaEquipos li, #listaJugadores li {
     margin-bottom: 10px;
+    text-align: center;
 }
 
 .calendario-grid {
@@ -111,7 +113,6 @@ input[type="number"], input[type="text"] {
 .fecha ul {
     list-style-type: none;
     padding: 0;
-    text-align: center;
 }
 
 .fecha li {
@@ -122,23 +123,42 @@ input[type="number"], input[type="text"] {
 
 .partido {
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
+    padding: 10px;
 }
 
 .equipo {
     display: flex;
     align-items: center;
+    width: 40%;
+}
+
+.equipo-local {
+    justify-content: flex-start;
+    text-align: left;
+}
+
+.equipo-visitante {
+    justify-content: flex-end;
+    text-align: right;
+}
+
+.goles-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 20%;
 }
 
 .goles-input {
     width: 30px;
-    margin: 0 5px;
     text-align: center;
+    margin: 0 5px;
 }
 
 .vs {
-    margin: 0 10px;
+    margin: 0 5px;
 }
 
 #tablaPosiciones {
@@ -185,9 +205,15 @@ input[type="number"], input[type="text"] {
     margin-top: 5px;
 }
 
+#confirmarEquipos {
+    display: block;
+    margin: 0 auto;
+}
+
 @media (max-width: 600px) {
     .listas-wrapper {
         flex-direction: column;
+        align-items: center;
     }
     
     .lista {
