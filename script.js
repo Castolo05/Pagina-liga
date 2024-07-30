@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const scrollIndicator = document.getElementById('scrollIndicator');
 
     let equiposData = [];
+    let partidosJugados = {};
 
     confirmarNumeroBtn.addEventListener('click', () => {
         const numEquipos = parseInt(numEquiposInput.value);
@@ -31,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     confirmarEquiposBtn.addEventListener('click', () => {
         equiposData = [];
+        partidosJugados = {};
         const equiposInputs = listaEquipos.querySelectorAll('input');
         const jugadoresInputs = listaJugadores.querySelectorAll('input');
 
@@ -106,11 +108,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 <ul>
                     ${ronda.map((partido, partidoIndex) => `
                         <li class="partido" id="fecha${index + 1}_partido${partidoIndex + 1}">
-                            <span class="equipo-local">${partido[0]}</span>
-                            <input type="number" class="goles-input" min="0" data-equipo="local" onchange="actualizarResultado(${index + 1}, ${partidoIndex + 1})">
-                            <span class="vs">vs</span>
-                            <input type="number" class="goles-input" min="0" data-equipo="visitante" onchange="actualizarResultado(${index + 1}, ${partidoIndex + 1})">
-                            <span class="equipo-visitante">${partido[1]}</span>
+                            <span class="equipo equipo-local">${partido[0]}</span>
+                            <div class="goles-container">
+                                <input type="number" class="goles-input" min="0" data-equipo="local" onchange="actualizarResultado(${index + 1}, ${partidoIndex + 1})">
+                                <span class="vs">vs</span>
+                                <input type="number" class="goles-input" min="0" data-equipo="visitante" onchange="actualizarResultado(${index + 1}, ${partidoIndex + 1})">
+                            </div>
+                            <span class="equipo equipo-visitante">${partido[1]}</span>
                         </li>
                     `).join('')}
                 </ul>
@@ -171,38 +175,70 @@ document.addEventListener('DOMContentLoaded', () => {
         const equipoLocal = partidoElement.querySelector('.equipo-local').textContent;
         const equipoVisitante = partidoElement.querySelector('.equipo-visitante').textContent;
 
-        actualizarEstadisticas(equipoLocal, golesLocal, golesVisitante);
-        actualizarEstadisticas(equipoVisitante, golesVisitante, golesLocal);
+        const partidoId = `${fecha}_${partido}`;
 
+        // Actualizar el partido en la lista de partidos jugados
+        partidosJugados[partidoId] = {
+            equipoLocal,
+            equipoVisitante,
+            golesLocal,
+            golesVisitante
+        };
+
+        // Recalcular todas las estadísticas
+        recalcularEstadisticas();
+
+        // Actualizar el color del partido
         let color;
         if (golesLocal > golesVisitante) {
-            color = 'linear-gradient(to right, #4CAF50, #F44336)';
+            color = 'linear-gradient(to right, #00FF00, #FF0000)'; // Verde brillante a rojo brillante
         } else if (golesLocal < golesVisitante) {
-            color = 'linear-gradient(to left, #4CAF50, #F44336)';
+            color = 'linear-gradient(to left, #00FF00, #FF0000)'; // Verde brillante a rojo brillante
         } else {
-            color = '#FFEB3B';
+            color = '#FFFF00'; // Amarillo brillante
         }
 
         partidoElement.style.background = color;
         mostrarTablaPosiciones();
     }
 
+    function recalcularEstadisticas() {
+        // Reiniciar estadísticas de los equipos
+        equiposData.forEach(equipo => {
+            equipo.puntos = 0;
+            equipo.pj = 0;
+            equipo.pg = 0;
+            equipo.pe = 0;
+            equipo.pp = 0;
+            equipo.gf = 0;
+            equipo.gc = 0;
+            equipo.dg = 0;
+        });
+
+        // Recalcular estadísticas basándose en los partidos jugados
+        Object.values(partidosJugados).forEach(partido => {
+            const { equipoLocal, equipoVisitante, golesLocal, golesVisitante } = partido;
+            actualizarEstadisticas(equipoLocal, golesLocal, golesVisitante);
+            actualizarEstadisticas(equipoVisitante, golesVisitante, golesLocal);
+        });
+    }
+
     function actualizarEstadisticas(nombreEquipo, golesFavor, golesContra) {
         const equipo = equiposData.find(e => e.nombre === nombreEquipo);
         if (equipo) {
-            equipo.pj++;
+            equipo.pj += 1;
             equipo.gf += golesFavor;
             equipo.gc += golesContra;
             equipo.dg = equipo.gf - equipo.gc;
 
             if (golesFavor > golesContra) {
-                equipo.pg++;
+                equipo.pg += 1;
                 equipo.puntos += 3;
             } else if (golesFavor === golesContra) {
-                equipo.pe++;
+                equipo.pe += 1;
                 equipo.puntos += 1;
             } else {
-                equipo.pp++;
+                equipo.pp += 1;
             }
         }
     }
